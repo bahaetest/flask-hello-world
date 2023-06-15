@@ -1,7 +1,7 @@
 
 from flask import Flask, request, redirect, session
 import shopify
-
+import traceback
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -10,6 +10,7 @@ API_SECRET = '17ae93aae4aa6673965467ab332d0585'
 
 @app.route('/install', methods=['GET'])
 def install():
+  try:  
     shop_url = request.args.get('shop')
     api_version = '2023-04'  # Replace with your desired API version
 
@@ -24,9 +25,11 @@ def install():
         redirect_uri=request.host_url + 'install/callback'
     )
     return redirect(install_url)
-
+  except Exception as err:
+      return "er1:"+str(traceback.format_exc())
 @app.route('/install/callback', methods=['GET'])
 def callback():
+  try:   
     # Verify the request came from Shopify
     shop_url = session.get('shop_url')
     api_version = session.get('api_version')
@@ -42,7 +45,8 @@ def callback():
     save_access_token(shop_url, session['access_token'])
 
     return 'Authentication successful'
-
+  except Exception as err:
+      return "er2:"+str(traceback.format_exc())
 def save_access_token(shop_url, access_token):
     file_path = f"{shop_url}_access_token.txt"  # Replace with your desired file path
 
