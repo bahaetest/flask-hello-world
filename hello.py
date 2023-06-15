@@ -1,11 +1,13 @@
 
-
 from flask import Flask, request, redirect, render_template
-import shopify
+from flask_shopify import shopify_webhook
 import os
-app = Flask(__name__)
 import binascii
 import traceback
+import json
+
+app = Flask(__name__)
+
 SHOPIFY_API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
 SHOPIFY_API_SECRET = '17ae93aae4aa6673965467ab332d0585'
 SHOPIFY_SCOPES = ['read_products', 'read_orders']
@@ -19,33 +21,44 @@ def index():
 
 @app.route('/install', methods=['GET'])
 def install():
-  try:  
-    shop = request.args.get('shop')
-    if shop:
-        shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
-        session = shopify.Session(shop.strip(),'2023-04')
-        state = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
-        auth_url = session.create_permission_url(SHOPIFY_SCOPES,INSTALL_REDIRECT_URL,state)
-        print(auth_url)
-        return redirect(auth_url)
-    return 'Shop parameter missing'
-  except Exception as err:
-      return "er1:"+str(traceback.format_exc())
+    try:  
+        shop = request.args.get('shop')
+        if shop:
+            state = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
+            auth_url = shopify_webhook.create_permission_url(
+                shop.strip(),
+                SHOPIFY_SCOPES,
+                INSTALL_REDIRECT_URL,
+                state,
+                SHOPIFY_API_KEY,
+                SHOPIFY_API_SECRET
+            )
+            return redirect(auth_url)
+        return 'Shop parameter missing'
+    except Exception as err:
+        return "er1:" + str(traceback.format_exc())
+
 @app.route('/install/callback', methods=['GET'])
 def install_callback():
-  try:
-    ra=request.args  
-    shop = ra.get('shop')
-    code = ra.get('code')
-    if shop and code:
-        shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
-        session = shopify.Session(shop.strip(), '2023-04')
-        token = session.request_token(ra)
-        shopify.ShopifyResource.activate_session(session)
-        return redirect(PREFERENCES_URL)
-    return 'Installation failed'
-  except Exception as err:
-      return "er2:"+str(traceback.format_exc())
+    try:
+        ra = request.args  
+        shop = ra.get('shop')
+        code = ra.get('code')
+        if shop and code:
+            access_token = shopify_webhook.request_access_token(
+                shop.strip(),
+                code,
+                INSTALL_REDIRECT_URL,
+                SHOPIFY_API_KEY,
+                SHOPIFY_API_SECRET
+            )
+            # Save the access_token to use for API requests
+
+            return redirect(INSTALL_REDIRECT_URL)
+        return 'Installation failed'
+    except Exception as err:
+        return "er2:" + str(traceback.format_exc())
+
 @app.route('/preferences', methods=['GET'])
 def preferences():
     return render_template('preferences.html')
@@ -62,9 +75,17 @@ def save_preferences():
 
     return 'Preferences saved successfully'
 
-@app.route('/callback', methods=['GET'])
-def callback():
-    return 'Callback handler'
+@app.route('/callback', methods=['POST'])
+@shopify_webhook.handle_webhook(SHOPIFY_API_SECRET)
+def callback(data, topic):
+    if topic == 'orders/create':
+        # Handle order creation event
+        order_data = json.loads(data)
+        print("Received order event:")
+        print(json.dumps(order_data, indent=2))
+    
+    # Return a response to acknowledge receipt of the webhook
+    return 'Webhook received'
 
 if __name__ == '__main__':
     app.run()
