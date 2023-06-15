@@ -5,7 +5,7 @@ import shopify
 import os
 app = Flask(__name__)
 import binascii
-
+import traceback
 SHOPIFY_API_KEY = '8b3b1f4f0e024b14b9eb367a94792475'
 SHOPIFY_API_SECRET = '0a05ec43f208cee37e92e7922af8f43b'
 SHOPIFY_SCOPES = ['read_products', 'write_products']
@@ -29,7 +29,7 @@ def install():
         return redirect(auth_url)
     return 'Shop parameter missing'
   except Exception as err:
-      return "er1:"+str(err)
+      return "er1:"+str(traceback.format_exc())
 @app.route('/install/callback', methods=['GET'])
 def install_callback():
   try:      
@@ -43,7 +43,7 @@ def install_callback():
         return redirect(PREFERENCES_URL)
     return 'Installation failed'
   except Exception as err:
-      return "er2:"+str(err)
+      return "er2:"+str(traceback.format_exc())
 @app.route('/preferences', methods=['GET'])
 def preferences():
     return render_template('preferences.html')
