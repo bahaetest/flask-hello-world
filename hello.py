@@ -6,8 +6,8 @@ import os
 app = Flask(__name__)
 import binascii
 import traceback
-SHOPIFY_API_KEY = '8b3b1f4f0e024b14b9eb367a94792475'
-SHOPIFY_API_SECRET = '0a05ec43f208cee37e92e7922af8f43b'
+SHOPIFY_API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
+SHOPIFY_API_SECRET = '17ae93aae4aa6673965467ab332d0585'
 SHOPIFY_SCOPES = ['read_products', 'write_products']
 INSTALL_REDIRECT_URL = 'https://shopify2service.onrender.com/install/callback'
 PREFERENCES_URL = 'https://shopify2service.onrender.com/preferences'
