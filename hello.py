@@ -26,6 +26,7 @@ def install():
         session = shopify.Session(shop.strip(),'2023-04')
         state = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
         auth_url = session.create_permission_url(SHOPIFY_SCOPES,INSTALL_REDIRECT_URL,state)
+        print(auth_url)
         return redirect(auth_url)
     return 'Shop parameter missing'
   except Exception as err:
