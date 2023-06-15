@@ -41,7 +41,7 @@ def install_callback():
         session = shopify.Session(shop.strip(), '2023-04')
         token = session.request_token(ra)
         shopify.ShopifyResource.activate_session(session)
-        return redirect(PREFERENCES_URL)
+        return redirect(INSTALL_REDIRECT_URL)
     return 'Installation failed'
   except Exception as err:
       return "er2:"+str(traceback.format_exc())
