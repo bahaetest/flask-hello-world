@@ -3,7 +3,6 @@
 from flask import Flask, request, redirect, render_template
 import shopify
 import os
-import randrom
 app = Flask(__name__)
 import binascii
 
