@@ -19,6 +19,7 @@ def index():
 
 @app.route('/install', methods=['GET'])
 def install():
+  try:  
     shop = request.args.get('shop')
     if shop:
         shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
@@ -27,9 +28,11 @@ def install():
         auth_url = session.create_permission_url(SHOPIFY_SCOPES,INSTALL_REDIRECT_URL, state)
         return redirect(auth_url)
     return 'Shop parameter missing'
-
+  except Exception as err:
+      return str(err)
 @app.route('/install/callback', methods=['GET'])
 def install_callback():
+  try:      
     shop = request.args.get('shop')
     code = request.args.get('code')
     if shop and code:
@@ -39,7 +42,8 @@ def install_callback():
         shopify.ShopifyResource.activate_session(session)
         return redirect(PREFERENCES_URL)
     return 'Installation failed'
-
+  except Exception as err:
+      return str(err)
 @app.route('/preferences', methods=['GET'])
 def preferences():
     return render_template('preferences.html')
