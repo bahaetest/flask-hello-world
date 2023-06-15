@@ -23,7 +23,7 @@ def install():
     shop = request.args.get('shop')
     if shop:
         shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
-        session = shopify.Session(shop.strip(),'2020-10')
+        session = shopify.Session(shop.strip(),'2023-04')
         state = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
         auth_url = session.create_permission_url(SHOPIFY_SCOPES,INSTALL_REDIRECT_URL, state)
         return redirect(auth_url)
@@ -37,7 +37,7 @@ def install_callback():
     code = request.args.get('code')
     if shop and code:
         shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
-        session = shopify.Session(shop.strip(), '2020-10')
+        session = shopify.Session(shop.strip(), '2023-04')
         token = session.request_token(code)
         shopify.ShopifyResource.activate_session(session)
         return redirect(PREFERENCES_URL)
