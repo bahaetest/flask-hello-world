@@ -39,7 +39,7 @@ def install_callback():
     if shop and code:
         shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
         session = shopify.Session(shop.strip(), '2023-04')
-        token = session.request_token(code)
+        token = session.request_token(ra)
         shopify.ShopifyResource.activate_session(session)
         return redirect(PREFERENCES_URL)
     return 'Installation failed'
