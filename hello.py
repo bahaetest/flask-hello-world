@@ -10,9 +10,9 @@ import binascii
 SHOPIFY_API_KEY = '8b3b1f4f0e024b14b9eb367a94792475'
 SHOPIFY_API_SECRET = '0a05ec43f208cee37e92e7922af8f43b'
 SHOPIFY_SCOPES = ['read_products', 'write_products']
-INSTALL_REDIRECT_URL = 'https://shopify2service.pythonanywhere.com/install/callback'
-PREFERENCES_URL = 'https://shopify2service.pythonanywhere.com/preferences'
-REDIRECT_URLS = ['https://shopify2service.pythonanywhere.com/callback']
+INSTALL_REDIRECT_URL = 'https://theshopify2service.onrender.com/install/callback'
+PREFERENCES_URL = 'https://theshopify2service.onrender.com/preferences'
+REDIRECT_URLS = ['https://theshopify2service.onrender.com/callback']
 
 @app.route('/', methods=['GET'])
 def index():
