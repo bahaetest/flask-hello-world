@@ -29,7 +29,7 @@ def install():
         return redirect(auth_url)
     return 'Shop parameter missing'
   except Exception as err:
-      return str(err)
+      return "er1:"+str(err)
 @app.route('/install/callback', methods=['GET'])
 def install_callback():
   try:      
@@ -43,7 +43,7 @@ def install_callback():
         return redirect(PREFERENCES_URL)
     return 'Installation failed'
   except Exception as err:
-      return str(err)
+      return "er2:"+str(err)
 @app.route('/preferences', methods=['GET'])
 def preferences():
     return render_template('preferences.html')
