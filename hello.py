@@ -8,7 +8,7 @@ import binascii
 import traceback
 SHOPIFY_API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
 SHOPIFY_API_SECRET = '17ae93aae4aa6673965467ab332d0585'
-SHOPIFY_SCOPES = ['read_products', 'write_products']
+SHOPIFY_SCOPES = ['read_products', 'read_orders']
 INSTALL_REDIRECT_URL = 'https://shopify2service.onrender.com/install/callback'
 PREFERENCES_URL = 'https://shopify2service.onrender.com/preferences'
 REDIRECT_URLS = ['https://shopify2service.onrender.com/callback']
@@ -23,7 +23,7 @@ def install():
     shop = request.args.get('shop')
     if shop:
         shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
-        session = shopify.Session(shop.strip(),'2021-07')
+        session = shopify.Session(shop.strip(),'2023-04')
         state = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
         auth_url = session.create_permission_url(SHOPIFY_SCOPES,INSTALL_REDIRECT_URL)
         return redirect(auth_url)
