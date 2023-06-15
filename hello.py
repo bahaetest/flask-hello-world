@@ -1,70 +1,55 @@
 
-
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, session
 import shopify
-import os
-app = Flask(__name__)
-import binascii
-import traceback
-SHOPIFY_API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
-SHOPIFY_API_SECRET = '17ae93aae4aa6673965467ab332d0585'
-SHOPIFY_SCOPES = ['read_products', 'write_products']
-INSTALL_REDIRECT_URL = 'https://shopify2service.onrender.com/install/callback'
-PREFERENCES_URL = 'https://shopify2service.onrender.com/preferences'
-REDIRECT_URLS = ['https://shopify2service.onrender.com/callback']
 
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('index.html')
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
+API_SECRET = '17ae93aae4aa6673965467ab332d0585'
 
 @app.route('/install', methods=['GET'])
 def install():
-  try:  
-    shop = request.args.get('shop')
-    if shop:
-        shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
-        session = shopify.Session(shop.strip(),'2023-04')
-        state = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
-        auth_url = session.create_permission_url(SHOPIFY_SCOPES,INSTALL_REDIRECT_URL, state)
-        return redirect(auth_url)
-    return 'Shop parameter missing'
-  except Exception as err:
-      return "er1:"+str(traceback.format_exc())
+    shop_url = request.args.get('shop')
+    api_version = '2023-04'  # Replace with your desired API version
+
+    # Create a Shopify session
+    session['shop_url'] = shop_url
+    session['api_version'] = api_version
+    session['state'] = shopify.Session.generate_state()
+
+    # Build the installation URL and redirect the user
+    install_url = shopify.Session(shop_url, api_version).create_permission_url(
+        scope='read_products',
+        redirect_uri=request.host_url + 'install/callback'
+    )
+    return redirect(install_url)
+
 @app.route('/install/callback', methods=['GET'])
-def install_callback():
-  try:
-    ra=request.args  
-    shop = ra.get('shop')
-    code = ra.get('code')
-    if shop and code:
-        shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
-        session = shopify.Session(shop.strip(), '2023-04')
-        token = session.request_token(ra)
-        shopify.ShopifyResource.activate_session(session)
-        return redirect(INSTALL_REDIRECT_URL)
-    return 'Installation failed'
-  except Exception as err:
-      return "er2:"+str(traceback.format_exc())
-@app.route('/preferences', methods=['GET'])
-def preferences():
-    return render_template('preferences.html')
-
-@app.route('/save-preferences', methods=['POST'])
-def save_preferences():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    notification = request.form.get('notification')
-    timezone = request.form.get('timezone')
-    language = request.form.get('language')
-
-    # Save the preferences to your database or perform any required operations
-
-    return 'Preferences saved successfully'
-
-@app.route('/callback', methods=['GET'])
 def callback():
-    return 'Callback handler'
+    # Verify the request came from Shopify
+    shop_url = session.get('shop_url')
+    api_version = session.get('api_version')
+    state = session.get('state')
+    if not shop_url or not api_version or not state:
+        return 'Invalid callback request'
+
+    # Create a Shopify session
+    session['state'] = None
+    session['access_token'] = shopify.Session(shop_url, api_version).request_token(request.args.to_dict())
+
+    # Save the access token to a file or database
+    save_access_token(shop_url, session['access_token'])
+
+    return 'Authentication successful'
+
+def save_access_token(shop_url, access_token):
+    file_path = f"{shop_url}_access_token.txt"  # Replace with your desired file path
+
+    # Write the access token to a file
+    with open(file_path, 'w') as file:
+        file.write(access_token)
 
 if __name__ == '__main__':
-    app.run()
-
+    shopify.ShopifySession.setup(api_key=API_KEY, secret=API_SECRET)
+    app.run(debug=True)
