@@ -32,13 +32,14 @@ def install():
       return "er1:"+str(traceback.format_exc())
 @app.route('/install/callback', methods=['GET'])
 def install_callback():
-  try:      
-    shop = request.args.get('shop')
-    code = request.args.get('code')
+  try:
+    ra=request.args  
+    shop = ra.get('shop')
+    code = ra.get('code')
     if shop and code:
         shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
         session = shopify.Session(shop.strip(), '2023-04')
-        token = session.request_token(code)
+        token = session.request_token(ra)
         shopify.ShopifyResource.activate_session(session)
         return redirect(PREFERENCES_URL)
     return 'Installation failed'
