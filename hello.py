@@ -2,7 +2,9 @@
 from flask import Flask, request, redirect, session
 import shopify
 import traceback
+import os
 app = Flask(__name__)
+import binascii
 app.secret_key = 'your_secret_key'
 
 API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
@@ -17,7 +19,7 @@ def install():
     # Create a Shopify session
     session['shop_url'] = shop_url
     session['api_version'] = api_version
-    session['state'] = shopify.Session.generate_state()
+    session['state'] = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
 
     # Build the installation URL and redirect the user
     install_url = shopify.Session(shop_url, api_version).create_permission_url(
