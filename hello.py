@@ -79,6 +79,7 @@ def home():
     '''
 
 def get_buttons_html():
+ try:   
     # Retrieve the orders
     orders = get_orders()+generate_mock_orders(5)
 
@@ -94,8 +95,8 @@ def get_buttons_html():
         button_html += f'Total Price: {total_price}</button><br><br>'
 
         buttons_html += button_html
-
-    return buttons_html
+except Exception as t:
+    return "<h1>"+str(traceback.format_exc())+"</h1"
 
 @app.route('/process_order', methods=['POST'])
 def process_order():
