@@ -70,7 +70,51 @@ def get_orders():
         # Handle the case where there are no orders
         return []
     return orders
+def get_orders_current_day():
+    # Retrieve the current date
+    current_date = date.today().isoformat()
 
+    # GraphQL query to fetch orders by created_at
+    query = '''
+    query GetOrdersByDate($date: Date!) {
+        orders(query: "created_at:>=$date") {
+            edges {
+                node {
+                    orderNumber: order_number
+                    createdAt: created_at
+                    totalPrice: total_price
+                    # Add other fields you need
+                }
+            }
+        }
+    }
+    '''
+
+    # Execute the GraphQL query
+    result = shopify.GraphQL().execute(
+        query=query,
+        variables={"date": current_date},
+        operation_name="GetOrdersByDate"
+    )
+
+    # Check if there are orders in the result
+    if 'data' in result and result['data'] is not None:
+        orders = result['data']['orders']['edges']
+
+        # Process the result and format it as a list of dictionaries
+        formatted_orders = [
+            {
+                'order_number': order['node']['orderNumber'],
+                'created_at': order['node']['createdAt'],
+                'total_price': order['node']['totalPrice']
+            }
+            for order in orders
+        ]
+
+        return formatted_orders
+    else:
+        # Handle the case where there are no orders
+        return []
 @app.route('/')
 def home():
     return '''
