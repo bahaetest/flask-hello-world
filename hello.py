@@ -53,7 +53,7 @@ def get_orders():
    # store_url = session.get('shopify_store_url')
    # shopify.ShopifyResource.set_site(store_url)
    
-   shopify.ShopifyResource.activate_session(session)
+    shopify.ShopifyResource.activate_session(session)
     # Execute the GraphQL query
     result = shopify.GraphQL().execute(
         query=query,
