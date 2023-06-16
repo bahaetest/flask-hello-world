@@ -6,6 +6,8 @@ import os
 app = Flask(__name__)
 import binascii
 import traceback
+import datetime
+
 SHOPIFY_API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
 SHOPIFY_API_SECRET = '17ae93aae4aa6673965467ab332d0585'
 SHOPIFY_SCOPES = ['read_products', 'read_orders']
@@ -13,9 +15,95 @@ INSTALL_REDIRECT_URL = 'https://shopify2service.onrender.com/install/callback'
 PREFERENCES_URL = 'https://shopify2service.onrender.com/preferences'
 REDIRECT_URLS = ['https://shopify2service.onrender.com/callback']
 
-@app.route('/', methods=['GET'])
+@app.route('/old', methods=['GET'])
 def index():
     return render_template('index.html')
+
+# Retrieve orders from the Shopify API
+def get_orders():
+    # Get the current day's start and end timestamps
+    current_date = datetime.datetime.now()
+    start_of_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = current_date.replace(hour=23, minute=59, second=59, microsecond=999)
+
+    # Format the timestamps as ISO 8601 strings
+    start_of_day_str = start_of_day.isoformat()
+    end_of_day_str = end_of_day.isoformat()
+
+    # Retrieve the orders
+    orders = shopify.Order.find(created_at_min=start_of_day_str, created_at_max=end_of_day_str)
+
+    return orders
+
+@app.route('/')
+def home():
+    return '''
+    <html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            function processOrder(orderNumber, createdAt, totalPrice) {
+                $.ajax({
+                    type: "POST",
+                    url: "/process_order",
+                    data: JSON.stringify({
+                        "order_number": orderNumber,
+                        "created_at": createdAt,
+                        "total_price": totalPrice
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(response) {
+                        console.log("Order processed successfully");
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+        '''
+    + get_buttons_html() + '''
+    </body>
+    </html>
+    '''
+
+def get_buttons_html():
+    # Retrieve the orders
+    orders = get_orders()
+
+    buttons_html = ""
+    for order in orders:
+        order_number = order.order_number
+        created_at = order.created_at
+        total_price = order.total_price
+
+        button_html = f'<button onclick="processOrder(\'{order_number}\', \'{created_at}\', {total_price})">'
+        button_html += f'Order Number: {order_number}<br>'
+        button_html += f'Created At: {created_at}<br>'
+        button_html += f'Total Price: {total_price}</button><br><br>'
+
+        buttons_html += button_html
+
+    return buttons_html
+
+@app.route('/process_order', methods=['POST'])
+def process_order():
+    order_data = request.json
+    order_number = order_data['order_number']
+    created_at = order_data['created_at']
+    total_price = order_data['total_price']
+
+    # Call your custom function with the order data
+    custom_function(order_number, created_at, total_price)
+
+    response = {"status": "success"}
+    return jsonify(response)
+
+def custom_function(order_number, created_at, total_price):
+    # Replace with your custom logic
+    print("Processing Order Number:", order_number)
+    print("Created At:", created_at)
+    print("Total Price:", total_price)
 
 @app.route('/install', methods=['GET'])
 def install():
