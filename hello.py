@@ -72,8 +72,7 @@ def home():
         </script>
     </head>
     <body>
-        '''
-    + get_buttons_html() + '''
+        '''+ get_buttons_html() + '''
     </body>
     </html>
     '''
