@@ -18,7 +18,18 @@ REDIRECT_URLS = ['https://shopify2service.onrender.com/callback']
 @app.route('/old', methods=['GET'])
 def index():
     return render_template('index.html')
-
+def generate_mock_orders(num_orders):
+    orders = []
+    for _ in range(num_orders):
+        order_number = random.randint(1000, 9999)
+        created_at = datetime.datetime.now().isoformat()
+        total_price = round(random.uniform(10, 100), 2)
+        orders.append({
+            'order_number': order_number,
+            'created_at': created_at,
+            'total_price': total_price
+        })
+    return orders
 # Retrieve orders from the Shopify API
 def get_orders():
     # Get the current day's start and end timestamps
@@ -69,7 +80,7 @@ def home():
 
 def get_buttons_html():
     # Retrieve the orders
-    orders = get_orders()
+    orders = get_orders()+generate_mock_orders(5)
 
     buttons_html = ""
     for order in orders:
