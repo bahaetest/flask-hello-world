@@ -153,9 +153,9 @@ def get_buttons_html():
 
     buttons_html = ""
     for order in orders:
-        order_number = order.order_number
-        created_at = order.created_at
-        total_price = order.total_price
+        order_number = order.get("order_number")
+        created_at = order.get("created_at")
+        total_price = order.get("total_price")
 
         button_html = f'<button onclick="processOrder(\'{order_number}\', \'{created_at}\', {total_price})">'
         button_html += f'Order Number: {order_number}<br>'
