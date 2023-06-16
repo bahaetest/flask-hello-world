@@ -43,7 +43,7 @@ def get_orders():
                 node {
                     id
                     createdAt
-                    # Add other fields you need
+                    totalPrice
                 }
             }
         }
