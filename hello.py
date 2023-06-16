@@ -32,18 +32,33 @@ def generate_mock_orders(num_orders):
     return orders
 # Retrieve orders from the Shopify API
 def get_orders():
-    # Get the current day's start and end timestamps
-    current_date = datetime.datetime.now()
-    start_of_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    end_of_day = current_date.replace(hour=23, minute=59, second=59, microsecond=999)
+    # Retrieve the current date
+    current_date = date.today().isoformat()
 
-    # Format the timestamps as ISO 8601 strings
-    start_of_day_str = start_of_day.isoformat()
-    end_of_day_str = end_of_day.isoformat()
+    # GraphQL query to fetch orders by created_at
+    query = '''
+    query GetOrdersByDate($date: Date!) {
+        orders(query: "created_at:>=$date") {
+            edges {
+                node {
+                    id
+                    createdAt
+                    # Add other fields you need
+                }
+            }
+        }
+    }
+    '''
 
-    # Retrieve the orders
-    orders = shopify.Order.find(created_at_min=start_of_day_str, created_at_max=end_of_day_str)
+    # Execute the GraphQL query
+    result = shopify.GraphQL().execute(
+        query=query,
+        variables={"date": current_date},
+        operation_name="GetOrdersByDate"
+    )
 
+    # Process the result and return the orders
+    orders = result['data']['orders']['edges']
     return orders
 
 @app.route('/')
