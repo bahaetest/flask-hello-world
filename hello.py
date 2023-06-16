@@ -62,7 +62,13 @@ def get_orders():
     )
 
     # Process the result and return the orders
-    orders = result['data']['orders']['edges']
+    #orders = result['data']['orders']['edges']
+    if 'data' in result and result['data'] is not None:
+        orders = result['data']['orders']['edges']
+        return orders
+    else:
+        # Handle the case where there are no orders
+        return []
     return orders
 
 @app.route('/')
