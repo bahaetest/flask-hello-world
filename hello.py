@@ -15,7 +15,7 @@ SHOPIFY_SCOPES = ['read_products', 'read_orders']
 INSTALL_REDIRECT_URL = 'https://shopify2service.onrender.com/install/callback'
 PREFERENCES_URL = 'https://shopify2service.onrender.com/preferences'
 REDIRECT_URLS = ['https://shopify2service.onrender.com/callback']
-
+sesion=None
 @app.route('/old', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -50,6 +50,8 @@ def get_orders():
         }
     }
     '''
+    store_url = session.get('shopify_store_url')
+    shopify.ShopifyResource.set_site(store_url)
 
     # Execute the GraphQL query
     result = shopify.GraphQL().execute(
@@ -135,11 +137,14 @@ def custom_function(order_number, created_at, total_price):
 
 @app.route('/install', methods=['GET'])
 def install():
+  global session      
   try:  
     shop = request.args.get('shop')
     if shop:
         shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
         session = shopify.Session(shop.strip(),'2023-04')
+        
+
         state = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
         auth_url = session.create_permission_url(SHOPIFY_SCOPES,INSTALL_REDIRECT_URL,state)
         print(auth_url)
