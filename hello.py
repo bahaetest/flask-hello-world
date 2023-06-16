@@ -95,7 +95,7 @@ def get_buttons_html():
         button_html += f'Total Price: {total_price}</button><br><br>'
 
         buttons_html += button_html
-except Exception as t:
+ except Exception as t:
     return "<h1>"+str(traceback.format_exc())+"</h1"
 
 @app.route('/process_order', methods=['POST'])
