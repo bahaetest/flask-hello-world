@@ -7,7 +7,7 @@ app = Flask(__name__)
 import binascii
 import traceback
 import datetime
-
+import random
 SHOPIFY_API_KEY = '624716ef243f3b8d43cfa7d2cca3a5ab'
 SHOPIFY_API_SECRET = '17ae93aae4aa6673965467ab332d0585'
 SHOPIFY_SCOPES = ['read_products', 'read_orders']
@@ -95,6 +95,7 @@ def get_buttons_html():
         button_html += f'Total Price: {total_price}</button><br><br>'
 
         buttons_html += button_html
+    return buttons_html
  except Exception as t:
     return "<h1>"+str(traceback.format_exc())+"</h1"
 
