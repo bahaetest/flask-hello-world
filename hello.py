@@ -9,8 +9,8 @@ import binascii
 import traceback
 import datetime
 import random
-SHOPIFY_API_KEY = 'b9b90bd390d1d4432aacfd4a0fd8cbb4'
-SHOPIFY_API_SECRET = '5dc746ae956c7e30e22c0c317379a8e4'
+SHOPIFY_API_KEY = '3ffb72491941a2bf91bd7199913baf14'
+SHOPIFY_API_SECRET = '02a2fa05942a0ac91843741c50e79820'
 SHOPIFY_SCOPES = ['read_products', 'read_orders']
 INSTALL_REDIRECT_URL = 'https://shopify2service.onrender.com/install/callback'
 PREFERENCES_URL = 'https://shopify2service.onrender.com/preferences'
