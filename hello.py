@@ -1,6 +1,6 @@
 
 from datetime import date
-
+import pandas as pd
 from flask import Flask, request, redirect, render_template
 import shopify
 import os
@@ -240,9 +240,24 @@ def callback():
 @app.route('/orders', methods=['GET'])
 def callbackk():
     orders = shopify.Order.find()
-   #for order in orders:
-        # Process each order as needed
-    #    print(f'Order ID: {order.id}, Total Price: {order.total_price}')
-    return str(orders)#'Callback handler'
+    order_data = []
+    for order in orders:
+     order_dict = {
+        'Order ID': order.id,
+        'Email': order.email,
+        'Created at': order.created_at,
+        'Financial status': order.financial_status,
+        'Fulfillment status': order.fulfillment_status,
+        'Total price': order.total_price,
+        'Line items': order.line_items,
+        'Shipping address': order.shipping_address,
+        'Billing address': order.billing_address,
+        'Customer': order.customer,
+        'Note': order.note,
+        'Tags': order.tags}
+     order_data.append(order_dict)    
+    df = pd.DataFrame(order_data)
+    html_table = df.to_html(index=False)
+    return html_table#'Callback handler'
 if __name__ == '__main__':
     app.run()
