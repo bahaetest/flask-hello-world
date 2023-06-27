@@ -6,3 +6,4 @@ itsdangerous==0.24
 gunicorn
 ShopifyAPI
 flask-shopify
+pandas
