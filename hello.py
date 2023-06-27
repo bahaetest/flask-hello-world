@@ -239,6 +239,7 @@ def callback():
     return 'Callback handler'
 @app.route('/orders', methods=['GET'])
 def callbackk():
+ try:   
     orders = shopify.Order.find()
     order_data = []
     for order in orders:
@@ -259,5 +260,8 @@ def callbackk():
     df = pd.DataFrame(order_data)
     html_table = df.to_html(index=False)
     return html_table#'Callback handler'
+ except Exception as e:
+     return str(e)
+     
 if __name__ == '__main__':
     app.run()
