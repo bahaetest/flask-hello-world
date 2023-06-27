@@ -237,6 +237,12 @@ def save_preferences():
 @app.route('/callback', methods=['GET'])
 def callback():
     return 'Callback handler'
-
+@app.route('/callback', methods=['GET'])
+def callback():
+    orders = shopify.Order.find()
+   #for order in orders:
+        # Process each order as needed
+    #    print(f'Order ID: {order.id}, Total Price: {order.total_price}')
+    return str(orders)#'Callback handler'
 if __name__ == '__main__':
     app.run()
